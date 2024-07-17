@@ -1,18 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 const UserLogin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:3000/login/user', { email, password });
+      const userData = response.data;
+      console.log(userData);
+      // Redirect to home page with user data
+      navigate('/booking',{state:userData});
+    } catch (err) {
+      console.error('Error logging in:', err);
+      setError('Invalid email or password');
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-sm p-8 bg-white shadow-lg rounded-lg">
         <h2 className="text-3xl font-bold mb-4">Log In</h2>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleLogin}>
           <div>
             <label htmlFor="email" className="block text-gray-700">Email</label>
             <input
               type="email"
               id="email"
               name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 mt-1 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Enter your email"
               required
@@ -24,11 +46,14 @@ const UserLogin = () => {
               type="password"
               id="password"
               name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 mt-1 border rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Enter your password"
               required
             />
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           <div className="flex items-center justify-between">
             <button
               type="submit"

@@ -25,6 +25,7 @@ mongoose.connect(uri, {
 
 const User = require('./models/User');
 const Doctor = require('./models/Doctor');
+const Patient = require('./models/Patient');
 
 
 // Routes
@@ -91,15 +92,77 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({ username: doctor.username, email: doctor.email, specialty: doctor.specialty });
+    res.status(200).json({_id:doctor._id, username: doctor.username, email: doctor.email, specialty: doctor.specialty });
   } catch (err) {
     console.error('Error logging in:', err);
     res.status(500).json({ message: 'Error logging in' });
   }
 });
 
+app.post('/login/user', async (req, res) => {
+  const { email, password } = req.body;
+  // console.log(email);
+  // console.log(password);
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+    console.log(user);
+    if (password!=user.password) {
+      return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    res.status(200).json({_id:user._id, username: user.username, email: user.email});
+  } catch (err) {
+    console.error('Error logging in:', err);
+    res.status(500).json({ message: 'Error logging in' });
+  }
+});
+
+app.get('/api/doctors', async (req, res) => {
+  // console.log("gwsolgijewr");
+  try {
+      const doctors = await Doctor.find({}, 'username specialty');
+      res.json(doctors);
+  } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch doctors' });
+  }
+});
+
+app.get('/api/patients/:doctorId', async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const patients = await Patient.find({ doctorId: doctorId });
+    res.json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ error: 'Failed to fetch patients' });
+  }
+});
+
+
+app.post('/api/patients', async (req, res) => {
+  const { doctorId, email, name, description } = req.body;
+
+  const newPatient = new Patient({
+    doctorId,
+    email,
+    name,
+    description
+  });
+
+  try {
+    const savedPatient = await newPatient.save();
+    res.status(201).json(savedPatient);
+  } catch (error) {
+    console.error('Error saving patient data:', error);
+    res.status(500).json({ error: 'Failed to save patient data' });
+  }
+});
+
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(3000, () => {
+  console.log(`Server is running on http://localhost:3000`);
 });

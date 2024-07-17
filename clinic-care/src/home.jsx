@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 const supabase = createClient("https://qhebmgbtfpnnsdhpgcey.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZWJtZ2J0ZnBubnNkaHBnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjExMTg0NzAsImV4cCI6MjAzNjY5NDQ3MH0.176drkW10Yz_zAwznxirDa4vfLLSmS9MqY50L7lPUK0");
 const CDNURL = "https://qhebmgbtfpnnsdhpgcey.supabase.co/storage/v1/object/public/care/";
@@ -9,11 +10,14 @@ const CDNURL = "https://qhebmgbtfpnnsdhpgcey.supabase.co/storage/v1/object/publi
 const ProfileCard = () => {
   const location = useLocation();
   const rowData = location.state; 
-  const { username, email, specialty } = location.state || { username: '', email: '', specialty: '' };
-
+  const { _id, username, email, specialty } = location.state || { _id:'',username: '', email: '', specialty: '' };
+  
   const [showUploadPopup, setShowUploadPopup] = useState(false);
+  const [showUploadPDF, setShowUpPDF] = useState(false);
+  const [showUploadpatient, setShowUppatient] = useState(false);
+
   const [PDF, setPDF] = useState([]);
-  const [userPDFs, setUserPDFs] = useState([]);
+  const [patientList, setPatientList] = useState([]);
 
   // Fetch PDF files from Supabase storage
   async function getPDF() {
@@ -30,16 +34,32 @@ const ProfileCard = () => {
     }
   }
 
+  // Fetch patients from backend
+  async function getPatients() {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/patients/${_id}`);
+      setPatientList(response.data);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      alert('Failed to fetch patients.');
+    }
+  }
   
   // Load PDFs on component mount
   useEffect(() => {
     getPDF();
+    getPatients();
   }, []);
 
   // Handle click on "View PDF" button
   const handleViewPDF = () => {
-    console.log("User's PDFs:", userPDFs);
-    // Implement your logic to display or handle user's PDFs here
+    setShowUppatient(false);
+    setShowUpPDF(true);
+  };
+
+  const handleViewpatient= () => {
+    setShowUpPDF(false);
+    setShowUppatient(true);
   };
 
   const handleUploadClick = () => {
@@ -103,11 +123,13 @@ const ProfileCard = () => {
             >
               View PDF
             </button>
-            <button className="w-full py-3 text-sm font-medium text-center text-gray-500 bg-gray-100 rounded hover:bg-gray-200 transition duration-150">
+            <button 
+              onClick={handleViewpatient}
+              className="w-full py-3 text-sm font-medium text-center text-gray-500 bg-gray-100 rounded hover:bg-gray-200 transition duration-150">
               Patient List
             </button>
           </div>
-          {PDF.length > 0 && (
+          {showUploadPDF && PDF.length > 0 && (
             <div className="my-5 px-6">
               <h3 className="font-medium text-gray-900 text-left">PDFs:</h3>
               <ul className="mt-3 space-y-2">
@@ -121,6 +143,19 @@ const ProfileCard = () => {
                     >
                       {pdf.name}
                     </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {showUploadpatient && patientList.length > 0 && (
+            <div className="my-5 px-6">
+              <h3 className="font-medium text-gray-900 text-left">Patients:</h3>
+              <ul className="mt-3 space-y-2">
+                {patientList.map((patient) => (
+                  <li key={patient._id}>
+                    <p className="text-gray-700">{patient.name} ({patient.email})</p>
+                    <p className="text-gray-500">{patient.description}</p>
                   </li>
                 ))}
               </ul>
