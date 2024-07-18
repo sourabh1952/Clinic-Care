@@ -15,7 +15,7 @@ const LoginForm = () => {
       const userData = response.data;
       console.log(userData);
       // Redirect to home page with user data
-      navigate('/home',{state:userData});
+      navigate('/profile',{state:userData});
     } catch (err) {
       console.error('Error logging in:', err);
       setError('Invalid email or password');

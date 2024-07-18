@@ -7,12 +7,12 @@ const path  = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname,"/clinic-care/dist")))
+app.use(express.static(path.join(__dirname,"/Client/dist")))
 app.use(express.urlencoded({ extended: true }));
 
 // connecting frontend to backend
 app.get('*',(req,res)=>
-  res.sendFile(path.join(__dirname,"/clinic-care/dist/index.html"))
+  res.sendFile(path.join(__dirname,"/Client/dist/index.html"))
 )
 const port = process.env.PORT || 3000;
 const uri ='mongodb+srv://sourabh19052003:414958%23IITM@care.keyd5dd.mongodb.net/?retryWrites=true&w=majority&appName=care' ;
@@ -83,7 +83,7 @@ app.post('/doctorsignup', async (req, res) => {
   }
 });
 
-// login check for patient
+// login check for doctor
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {

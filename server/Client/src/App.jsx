@@ -4,7 +4,7 @@ import UserSignup from './UserSignup';
 import DoctorSignup from './DoctorSignup';
 import DoctorLogin from './DoctorLogin';
 import UserLogin from './UserLogin';
-import Home from './home';
+import Home from './DoctorProfile';
 import DoctorBooking from './DoctorBooking';
 
 function App() {
@@ -42,7 +42,7 @@ function App() {
       <Route path="/doctor-signup" element={<DoctorSignup />} />
       <Route path="/doctor-login" element={<DoctorLogin />} />
       <Route path="/user-login" element={<UserLogin />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/profile" element={<Home />} />
       <Route path="/booking" element={<DoctorBooking />} />
     </Routes>
   );

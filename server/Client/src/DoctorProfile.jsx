@@ -9,6 +9,7 @@ const CDNURL = "https://qhebmgbtfpnnsdhpgcey.supabase.co/storage/v1/object/publi
 const ProfileCard = () => {
   const location = useLocation();
   const rowData = location.state; 
+  // getting the doctor data for his/her profile
   const { _id, username, email, specialty } = location.state || { _id:'',username: '', email: '', specialty: '' };
   
   const [showUploadPopup, setShowUploadPopup] = useState(false);
